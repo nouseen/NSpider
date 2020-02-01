@@ -14,7 +14,7 @@ import java.util.List;
 
 import static com.nouseen.weather.vo.ChinaCities.citiesStringArray;
 
-public class WeatherInfoProcessor implements PageProcessor {
+public class WeatherInfoProcessorNhVisitCom implements PageProcessor {
 
     private Site site = Site.me().setRetryTimes(3).setSleepTime(100);
 
@@ -75,11 +75,8 @@ public class WeatherInfoProcessor implements PageProcessor {
     public static void main(String[] args) {
 
         for (String[] strings : citiesStringArray) {
-            // https://m.tianqi.com/lishi/wuhan/202001.html
             String url = String.format("http://www.nhvisit.com/%s1yuetianqi/?from=singlemessage&isappinstalled=0", StringUtils.lowerCase(strings[1]));
-            // String url = String.format("http://www.nhvisit.com/2019beijing1yuetianqi/?from=singlemessage&isappinstalled=0", StringUtils.lowerCase(strings[1]));
-            http://www.nhvisit.com//
-            Spider.create(new WeatherInfoProcessor()).addUrl(url)
+            Spider.create(new WeatherInfoProcessorNhVisitCom()).addUrl(url)
                     .thread(1).syncRun();
         }
         ExcelExportParamVo excelExportParamVo = new ExcelExportParamVo(WeatherResult.class).setDataList(WeatherResultList).setFileRoot("D:/weather/").setSheetName("天气信息").buildTitleMap();

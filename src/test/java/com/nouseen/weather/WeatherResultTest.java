@@ -1,11 +1,10 @@
 package com.nouseen.weather;
 
+import com.nouseen.weather.properties.SpiderProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
-
-import static org.junit.Assert.*;
 
 public class WeatherResultTest {
 
@@ -34,5 +33,10 @@ public class WeatherResultTest {
         // weatherResult.setDailyWeather(dailyWeather);
         // weatherResult.setNightWeather(nightWeather);
         // weatherResult.setWindDirection(windDirection);
+    }
+
+    @Test
+    public void testConfig() {
+        System.out.println(SpiderProperties.IsEnableSpider);
     }
 }

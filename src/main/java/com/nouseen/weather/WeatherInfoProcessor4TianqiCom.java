@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.nouseen.util.ExcelUtil;
 import com.nouseen.util.vo.ExcelExportParamVo;
 import com.nouseen.weather.vo.WeatherResult4Tianqi;
+import org.apache.commons.lang3.StringUtils;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
@@ -12,7 +13,9 @@ import us.codecraft.webmagic.selector.Selectable;
 
 import java.util.List;
 
-public class WeatherInfoProcessor4Tianqi implements PageProcessor {
+import static com.nouseen.weather.vo.ChinaCities.citiesStringArray;
+
+public class WeatherInfoProcessor4TianqiCom implements PageProcessor {
 
     private Site site = Site.me().setRetryTimes(3).setSleepTime(100);
 
@@ -36,8 +39,8 @@ public class WeatherInfoProcessor4Tianqi implements PageProcessor {
             // 日期
             String dateValue = node.$("a").regex("title=\".*?(2020.*?)历史", 1).toString();
 
-            // 最底气温
-            String lowT = dd.get(3).regex(">.*?(\\d+)~", 1).toString();
+            // 最低气温
+            String lowT = dd.get(3).regex(">.*?(-?\\d+)~", 1).toString();
 
             // 最高气温
             String highT = dd.get(3).regex("<b>(.*?)</b>", 1).toString();
@@ -63,12 +66,13 @@ public class WeatherInfoProcessor4Tianqi implements PageProcessor {
 
     public static void main(String[] args) {
 
-        // for (String[] strings : citiesStringArray) {
-        String url = "https://m.tianqi.com/lishi/wuhan/202001.html";
+        for (String[] strings : citiesStringArray) {
+            // String url = "https://m.tianqi.com/lishi/wuhan/202001.html";
+            String url = String.format("https://m.tianqi.com/lishi/%s/202001.html", StringUtils.lowerCase(strings[1]));
 
-        Spider.create(new WeatherInfoProcessor4Tianqi()).addUrl(url)
-                .thread(1).syncRun();
-        // }
+            Spider.create(new WeatherInfoProcessor4TianqiCom()).addUrl(url)
+                    .thread(1).syncRun();
+        }
         ExcelExportParamVo excelExportParamVo = new ExcelExportParamVo(WeatherResult4Tianqi.class).setDataList(WeatherResultList).setFileRoot("D:/weather/").setSheetName("天气信息").buildTitleMap();
         ExcelUtil.excelExport(excelExportParamVo);
 
