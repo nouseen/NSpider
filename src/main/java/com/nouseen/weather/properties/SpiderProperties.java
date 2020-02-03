@@ -7,7 +7,11 @@ public class SpiderProperties extends BaseProperties {
     /**
      * 是否开启
      */
-    public static boolean IsEnableSpider;
+    public static boolean IsEnableTestMode;
+
+    public static String ResultPath;
+
+    public static String CitesDataName;
 
     private static SpiderProperties me = new SpiderProperties();
 

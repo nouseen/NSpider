@@ -110,7 +110,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.nouseen.util.DownNCEIData</mainClass> <!-- 指定入口类路径 -->
+                            <mainClass>com.nouseen.weather.main.NmcDetailGetter</mainClass> <!-- 指定入口类路径 -->
                         </manifest>
                     </archive>
                     <descriptorRefs>
