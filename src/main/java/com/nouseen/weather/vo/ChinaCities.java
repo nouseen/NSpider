@@ -2,6 +2,7 @@ package com.nouseen.weather.vo;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.nouseen.weather.properties.SpiderProperties;
 import org.apache.log4j.Logger;
 
@@ -9,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 
 public class ChinaCities {
 
@@ -226,6 +228,12 @@ public class ChinaCities {
             "    }\n" +
             "]";
 
+    private static Map<String, NmcCity> nmcCityCodeMap = Maps.newHashMap();
+
+    public static NmcCity getNmcCityByCode(String code) {
+        return nmcCityCodeMap.get(code);
+    }
+
     public static List<NmcCity> getChinaCities4nmc() {
         List<NmcCity> nmcCities = Lists.newLinkedList();
 
@@ -246,9 +254,12 @@ public class ChinaCities {
             bufferedReader.close();
 
             nmcCities = JSON.parseArray(citiesJson, NmcCity.class);
+
+            for (NmcCity nmcCity : nmcCities) {
+                nmcCityCodeMap.put(nmcCity.getCode(), nmcCity);
+            }
         } catch (Exception e) {
             logger.error(e);
-
         }
 
         return nmcCities;

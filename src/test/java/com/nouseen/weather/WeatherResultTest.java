@@ -37,6 +37,6 @@ public class WeatherResultTest {
 
     @Test
     public void testConfig() {
-        System.out.println(SpiderProperties.IsEnableSpider);
+        System.out.println(SpiderProperties.IsEnableTestMode);
     }
 }

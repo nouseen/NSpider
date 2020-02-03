@@ -2,7 +2,9 @@ package com.nouseen.weather;
 
 import com.google.common.collect.Lists;
 import com.nouseen.util.DateUtil;
+import com.nouseen.weather.properties.SpiderProperties;
 import com.nouseen.weather.vo.WeatherResult4nmcDetailForecast;
+import com.nouseen.weather.vo.WeatherResult4nmcMonthTemperatureRecord;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import us.codecraft.webmagic.Page;
@@ -20,18 +22,59 @@ public class WeatherInfoProcessor4nmcDetail implements PageProcessor {
     private Site site = Site.me().setRetryTimes(3).setSleepTime(100);
 
     public static List<WeatherResult4nmcDetailForecast> weatherResult4nmcDetailForecastList = Lists.newLinkedList();
+    public static List<WeatherResult4nmcMonthTemperatureRecord> weatherResult4NmcMonthTemperatureRecordList = Lists.newLinkedList();
 
+    private String publishTime;
+    private String cityname;
     @Override
     public void process(Page page) {
 
+        // 初始化公用数据
+        publishTime = page.getHtml().$(".btitle").regex("发布于：(.*?)<", 1).toString();
+        cityname = page.getHtml().$(".cityname .cname").regex(">(.*?)<", 1).toString();
+
+        processDetailData(page);
+
+        processTempData12Moth(page);
+    }
+
+    /**
+     * 12个月温度数据
+     *
+     * @auth nouseen
+     * @since 2020/2/3
+     */
+    private void processTempData12Moth(Page page) {
+        if (!SpiderProperties.IsEnableMothDataProcess) {
+            return;
+        }
+        for (int i = 0; i < 12; i++) {
+            String regex = String.format("month.push\\(%s\\); maxTemp.push\\((.*?)\\); minTemp.push\\((.*?)\\); precipitation.push\\((.*?)\\)", i + 1);
+            String maxTemp = page.getHtml().regex(regex, 1).toString();
+            String minTemp = page.getHtml().regex(regex, 2).toString();
+            String precipitation = page.getHtml().regex(regex, 3).toString();
+
+            WeatherResult4nmcMonthTemperatureRecord weatherResult4NmcMonthTemperatureRecord = new WeatherResult4nmcMonthTemperatureRecord();
+            weatherResult4NmcMonthTemperatureRecord.setPublishDateValue(publishTime);
+            weatherResult4NmcMonthTemperatureRecord.setDateValue(i + 1 + "月");
+            weatherResult4NmcMonthTemperatureRecord.setAddress(cityname);
+            weatherResult4NmcMonthTemperatureRecord.setPrecipitation(precipitation);
+            weatherResult4NmcMonthTemperatureRecord.setLowTemperature(minTemp);
+            weatherResult4NmcMonthTemperatureRecord.setHighTemperature(maxTemp);
+            weatherResult4NmcMonthTemperatureRecordList.add(weatherResult4NmcMonthTemperatureRecord);
+        }
+    }
+
+    private void processDetailData(Page page) {
+
+        if (!SpiderProperties.IsEnableDetailForecastProcess) {
+            return;
+        }
 
         WeatherResult4nmcDetailForecast[][] weatherResult4nmcDetailForecastArray = new WeatherResult4nmcDetailForecast[7][8];
 
         // 今天
         Date nowDate = DateUtil.getNowDate();
-
-        String publishTime = page.getHtml().$(".btitle").regex("发布于：(.*?)<", 1).toString();
-        String cityname = page.getHtml().$(".cityname .cname").regex(">(.*?)<", 1).toString();
 
         // 先new 7 个对象 对应7天的数据
         for (int i = 0; i < 7; i++) {
@@ -165,8 +208,6 @@ public class WeatherInfoProcessor4nmcDetail implements PageProcessor {
                     logger.error(e);
                 }
             }
-
-
         }
 
         for (WeatherResult4nmcDetailForecast[] weatherResult4nmcDetailForecasts : weatherResult4nmcDetailForecastArray) {
